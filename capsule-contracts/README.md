@@ -8,6 +8,8 @@ This repo contains the script examples for the Nervos Developer Training Course.
 
 * **always** - A lock script that always succeeds (unlocks). This is also known as the "Always Success" lock script.
 
+* **jsoncell** - A type script that only allows valid JSON strings to be stored as cell data.
+
 ## Usage
 
 Build all contracts (debug):

@@ -13,3 +13,7 @@ deployment = "deployment.toml"
 [[contracts]]
 name = "always"
 template_type = "Rust"
+
+[[contracts]]
+name = "jsoncell"
+template_type = "Rust"

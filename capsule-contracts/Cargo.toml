@@ -1,5 +1,5 @@
 [workspace]
-members = ["contracts/always"]
+members = ["contracts/always", "contracts/jsoncell"]
 
 [profile.release]
 overflow-checks = true

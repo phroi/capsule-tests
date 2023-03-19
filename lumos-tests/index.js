@@ -6,8 +6,8 @@ const { initializeConfig } = require("@ckb-lumos/config-manager");
 const { addressToScript, sealTransaction, TransactionSkeleton } = require("@ckb-lumos/helpers");
 const { Indexer } = require("@ckb-lumos/ckb-indexer");
 const { addDefaultCellDeps, addDefaultWitnessPlaceholders, collectCapacity, getLiveCell, indexerReady, readFileToHexString, readFileToHexStringSync, sendTransaction, signTransaction, waitForTransactionConfirmation } = require("./lib/index.js");
-const { ckbytesToShannons, hexToArrayBuffer, hexToInt, intToHex } = require("./lib/util.js");
-const { describeTransaction, initializeLab, validateLab } = require("./lab.js");
+const { ckbytesToShannons, hexToArrayBuffer, hexToInt, intToHex, stringToHex } = require("./lib/util.js");
+const { describeTransaction, initializeLab } = require("./lab.js");
 const config = require("./config.json");
 
 // CKB Node and CKB Indexer Node JSON RPC URLs.
@@ -19,7 +19,20 @@ const PRIVATE_KEY_1 = "0x67842f5e4fa0edb34c9b4adbe8c3c1f3c737941f7c875d18bc6ec2f
 const ADDRESS_1 = "ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqvc32wruaxqnk4hdj8yr4yp5u056dkhwtc94sy8q";
 
 // This is the always success RISC-V binary.
-const DATA_FILE_1 = "always";
+
+//Always success cell
+//Old capsule generates a working version
+// const DATA_FILE_1 = "../capsule-contracts/build/release/always_capsule_0.7.3";
+//After 0.7.3, capsule doesn't generate a working version
+// const DATA_FILE_1 = "../capsule-contracts/build/release/always";
+
+//JSON cell
+//Old capsule generates a working version
+// const DATA_FILE_1 = "../capsule-contracts/build/release/jsoncell_capsule_0.7.3";
+//After 0.7.3, capsule doesn't generate a working version
+const DATA_FILE_1 = "../capsule-contracts/build/release/jsoncell";
+
+
 const DATA_FILE_HASH_1 = ckbHash(hexToArrayBuffer(readFileToHexStringSync(DATA_FILE_1).hexString)).serializeJson(); // Blake2b hash of the always success binary.
 
 // This is the TX fee amount that will be paid in Shannons.
@@ -57,9 +70,6 @@ async function deployCode(indexer) {
 	// Print the details of the transaction to the console.
 	describeTransaction(transaction.toJS());
 
-	// Validate the transaction against the lab requirements.
-	await validateLab(transaction, "deploy");
-
 	// Sign the transaction.
 	const signedTx = signTransaction(transaction, PRIVATE_KEY_1);
 
@@ -81,24 +91,29 @@ async function deployCode(indexer) {
 	return outPoint;
 }
 
-async function createCells(indexer) {
+async function createCells(indexer, alwaysSuccessCodeOutPoint) {
 	// Create a transaction skeleton.
 	let transaction = TransactionSkeleton();
 
 	// Add the cell dep for the lock script.
 	transaction = addDefaultCellDeps(transaction);
+	const cellDep = { dep_type: "code", out_point: alwaysSuccessCodeOutPoint };
+	transaction = transaction.update("cellDeps", (cellDeps) => cellDeps.push(cellDep));
 
-	// Create a cell using the always success lock.
-	const outputCapacity1 = ckbytesToShannons(41n);
-	const lockScript1 =
+
+	// Create a cell using the provided lock.
+	const outputCapacity1 = ckbytesToShannons(116n);
+	const lockScript1 = addressToScript(ADDRESS_1)
+	const typeScript1 =
 	{
 		code_hash: DATA_FILE_HASH_1,
 		hash_type: "data",
 		args: "0x"
 	};
-	const output1 = { cell_output: { capacity: intToHex(outputCapacity1), lock: lockScript1, type: null }, data: "0x" };
-	transaction = transaction.update("outputs", (i) => i.push(output1));
-	transaction = transaction.update("outputs", (i) => i.push(output1));
+	// Data used for jsoncell compatibility
+	const data1 = stringToHex(JSON.stringify({ "msg": "Hello World!" }));
+	const output1 = { cell_output: { capacity: intToHex(outputCapacity1), lock: lockScript1, type: typeScript1 }, data: data1 };
+
 	transaction = transaction.update("outputs", (i) => i.push(output1));
 
 	// Add input capacity cells.
@@ -121,9 +136,6 @@ async function createCells(indexer) {
 	// Print the details of the transaction to the console.
 	describeTransaction(transaction.toJS());
 
-	// Validate the transaction against the lab requirements.
-	await validateLab(transaction, "create");
-
 	// Sign the transaction.
 	const signedTx = signTransaction(transaction, PRIVATE_KEY_1);
 
@@ -139,8 +151,6 @@ async function createCells(indexer) {
 	const outPoints =
 		[
 			{ tx_hash: txid, index: "0x0" },
-			{ tx_hash: txid, index: "0x1" },
-			{ tx_hash: txid, index: "0x2" }
 		];
 
 	return outPoints;
@@ -176,11 +186,8 @@ async function consumeCells(indexer, alwaysSuccessCodeOutPoint, alwaysSuccessCel
 	// Print the details of the transaction to the console.
 	describeTransaction(transaction.toJS());
 
-	// Validate the transaction against the lab requirements.
-	await validateLab(transaction, "consume");
-
-	// Finalize the transaction with no signatures.
-	const signedTx = sealTransaction(transaction, []);
+	// Sign the transaction.
+	const signedTx = signTransaction(transaction, PRIVATE_KEY_1);
 
 	// Send the transaction to the RPC node.
 	const txid = await sendTransaction(NODE_URL, signedTx);
@@ -207,7 +214,7 @@ async function main() {
 	await indexerReady(indexer);
 
 	// Create a cell that uses the always success binary as a lock script.
-	const alwaysSuccessCellOutPoint = await createCells(indexer);
+	const alwaysSuccessCellOutPoint = await createCells(indexer, alwaysSuccessCodeOutPoint);
 	await indexerReady(indexer);
 
 	// Consume the cell using the always success lock script.

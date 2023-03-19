@@ -150,78 +150,11 @@ function signTransaction(transaction, PRIVATE_KEY) {
 	return lab.signTransaction(transaction, PRIVATE_KEY);
 }
 
-async function validateLab(skeleton, action) {
-	if (action == "deploy")
-		return;
-	else if (action == "create")
-		await validateLabCreate(skeleton);
-	else if (action == "consume")
-		await validateLabConsume(skeleton);
-	else
-		throw new Error("Invalid action specified");
-}
-
-async function validateLabCreate(skeleton) {
-	const tx = skeleton.toJS();
-
-	if (tx.inputs.length < 1)
-		throw new Error("This lab requires at least one input cell.");
-
-	if (tx.outputs.length != 4)
-		throw new Error("This lab requires four output cells.");
-
-	for (let i = 0; i < 3; ++i) {
-		if (hexToInt(tx.outputs[i].cell_output.capacity) != ckbytesToShannons(41n))
-			throw new Error(`This lab requires output ${i} to have a capacity of 41 CKBytes.`);
-	}
-
-	const inputCapacity = skeleton.inputs.toArray().reduce((a, c) => a + hexToInt(c.cell_output.capacity), 0n);
-	const outputCapacity = skeleton.outputs.toArray().reduce((a, c) => a + hexToInt(c.cell_output.capacity), 0n);
-	const TX_FEE = inputCapacity - outputCapacity;
-
-	if (outputCapacity > inputCapacity)
-		throw new Error("More capacity is required by the outputs than is available in the inputs.");
-
-	if (TX_FEE > ckbytesToShannons(1))
-		throw new Error(`The TX Fee provided is too large: ${formattedNumber(TX_FEE)} Shannons.`);
-
-	if (TX_FEE != 100_000n)
-		throw new Error("This lab requires a TX Fee of exactly 0.001 CKBytes.");
-}
-
-async function validateLabConsume(skeleton) {
-	const tx = skeleton.toJS();
-
-	if (tx.inputs.length < 3)
-		throw new Error("This lab requires at least three input cells.");
-
-	if (tx.outputs.length != 1)
-		throw new Error("This lab requires one output cell.");
-
-	for (let i = 0; i < 3; ++i) {
-		if (hexToInt(tx.inputs[i].cell_output.capacity) != ckbytesToShannons(41n))
-			throw new Error(`This lab requires input ${i} to have a capacity of 41 CKBytes.`);
-	}
-
-	const inputCapacity = skeleton.inputs.toArray().reduce((a, c) => a + hexToInt(c.cell_output.capacity), 0n);
-	const outputCapacity = skeleton.outputs.toArray().reduce((a, c) => a + hexToInt(c.cell_output.capacity), 0n);
-	const TX_FEE = inputCapacity - outputCapacity;
-
-	if (outputCapacity > inputCapacity)
-		throw new Error("More capacity is required by the outputs than is available in the inputs.");
-
-	if (TX_FEE > ckbytesToShannons(1))
-		throw new Error(`The TX Fee provided is too large: ${formattedNumber(TX_FEE)} Shannons.`);
-
-	if (TX_FEE != 100_000n)
-		throw new Error("This lab requires a TX Fee of exactly 0.001 CKBytes.");
-}
 
 module.exports =
 {
 	describeTransaction,
 	getLiveCell,
 	initializeLab,
-	signTransaction,
-	validateLab
+	signTransaction
 };
