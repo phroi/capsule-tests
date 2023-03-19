@@ -5,10 +5,10 @@ const { ckbHash } = utils;
 const { initializeConfig } = require("@ckb-lumos/config-manager");
 const { addressToScript, sealTransaction, TransactionSkeleton } = require("@ckb-lumos/helpers");
 const { Indexer } = require("@ckb-lumos/ckb-indexer");
-const { addDefaultCellDeps, addDefaultWitnessPlaceholders, collectCapacity, getLiveCell, indexerReady, readFileToHexString, readFileToHexStringSync, sendTransaction, signTransaction, waitForTransactionConfirmation } = require("../lib/index.js");
-const { ckbytesToShannons, hexToArrayBuffer, hexToInt, intToHex } = require("../lib/util.js");
+const { addDefaultCellDeps, addDefaultWitnessPlaceholders, collectCapacity, getLiveCell, indexerReady, readFileToHexString, readFileToHexStringSync, sendTransaction, signTransaction, waitForTransactionConfirmation } = require("./lib/index.js");
+const { ckbytesToShannons, hexToArrayBuffer, hexToInt, intToHex } = require("./lib/util.js");
 const { describeTransaction, initializeLab, validateLab } = require("./lab.js");
-const config = require("../config.json");
+const config = require("./config.json");
 
 // CKB Node and CKB Indexer Node JSON RPC URLs.
 const NODE_URL = "http://127.0.0.1:8114/";
@@ -19,7 +19,7 @@ const PRIVATE_KEY_1 = "0x67842f5e4fa0edb34c9b4adbe8c3c1f3c737941f7c875d18bc6ec2f
 const ADDRESS_1 = "ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqvc32wruaxqnk4hdj8yr4yp5u056dkhwtc94sy8q";
 
 // This is the always success RISC-V binary.
-const DATA_FILE_1 = "../files/always_success";
+const DATA_FILE_1 = "always";
 const DATA_FILE_HASH_1 = ckbHash(hexToArrayBuffer(readFileToHexStringSync(DATA_FILE_1).hexString)).serializeJson(); // Blake2b hash of the always success binary.
 
 // This is the TX fee amount that will be paid in Shannons.
