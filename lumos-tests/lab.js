@@ -137,7 +137,7 @@ async function setupCells(NODE_URL, indexer) {
 	// console.log();
 
 	// Wait for the transaction to confirm.
-	process.stdout.write("Now setting up Cells for lab exercise. Please wait.");
+	process.stdout.write("Now setting up Cells for tests. Please wait.");
 	await waitForConfirmation(NODE_URL, txid, (_status) => process.stdout.write("."), { recheckMs: 1_000 });
 	await indexerReady(indexer, (_indexerTip, _rpcTip) => process.stdout.write("."));
 	console.log("\n");

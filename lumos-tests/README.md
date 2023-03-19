@@ -1,7 +1,10 @@
-# Nervos Developer Training Course
+# Tests adapted from Nervos Developer Training Course
 
-This repo contains the example code and lab exercises for the Nervos Developer Training Course.
+This folder contains the testing code for Capsule adapted from the Nervos Developer Training Course.
 
-The content you find here is designed to be used with lessons.
+Tests that are currently available:
 
-You can find the full developer training course on [GitBook](https://nervos.gitbook.io/developer-training-course/).
+* `node index.js ../capsule-contracts/build/release/jsoncell`
+* `node index.js ../capsule-contracts/build/release/jsoncell_capsule_0.7.3`
+* `node index.js ../capsule-contracts/build/release/always`
+* `node index.js ../capsule-contracts/build/release/always_capsule_0.7.3`

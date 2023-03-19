@@ -18,7 +18,17 @@ const INDEXER_URL = "http://127.0.0.1:8116/";
 const PRIVATE_KEY_1 = "0x67842f5e4fa0edb34c9b4adbe8c3c1f3c737941f7c875d18bc6ec2f80554111d";
 const ADDRESS_1 = "ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqvc32wruaxqnk4hdj8yr4yp5u056dkhwtc94sy8q";
 
-// This is the always success RISC-V binary.
+// Load from process.argv the RISC-V binary to use.
+
+if (process.argv.length < 3) {
+	throw new Error("You must pass as argument the RISC-V binary to use!");
+}
+
+if (process.argv.length > 3) {
+	throw new Error("Too many arguments!");
+}
+
+const DATA_FILE_1 = process.argv[2];
 
 //Always success cell
 //Old capsule generates a working version
@@ -30,7 +40,7 @@ const ADDRESS_1 = "ckt1qzda0cr08m85hc8jlnfp3zer7xulejywt49kt2rr0vthywaa50xwsqvc3
 //Old capsule generates a working version
 // const DATA_FILE_1 = "../capsule-contracts/build/release/jsoncell_capsule_0.7.3";
 //After 0.7.3, capsule doesn't generate a working version
-const DATA_FILE_1 = "../capsule-contracts/build/release/jsoncell";
+//const DATA_FILE_1 = "../capsule-contracts/build/release/jsoncell";
 
 
 const DATA_FILE_HASH_1 = ckbHash(hexToArrayBuffer(readFileToHexStringSync(DATA_FILE_1).hexString)).serializeJson(); // Blake2b hash of the always success binary.
@@ -39,6 +49,8 @@ const DATA_FILE_HASH_1 = ckbHash(hexToArrayBuffer(readFileToHexStringSync(DATA_F
 const TX_FEE = 100_000n;
 
 async function deployCode(indexer) {
+	console.log("DEPLOY CODE\n");
+
 	// Create a transaction skeleton.
 	let transaction = TransactionSkeleton();
 
@@ -92,6 +104,8 @@ async function deployCode(indexer) {
 }
 
 async function createCells(indexer, alwaysSuccessCodeOutPoint) {
+	console.log("CREATE CELLS\n");
+
 	// Create a transaction skeleton.
 	let transaction = TransactionSkeleton();
 
@@ -157,6 +171,8 @@ async function createCells(indexer, alwaysSuccessCodeOutPoint) {
 }
 
 async function consumeCells(indexer, alwaysSuccessCodeOutPoint, alwaysSuccessCellOutPoints) {
+	console.log("CONSUME CELLS\n");
+
 	// Create a transaction skeleton.
 	let transaction = TransactionSkeleton();
 
@@ -221,6 +237,6 @@ async function main() {
 	await consumeCells(indexer, alwaysSuccessCodeOutPoint, alwaysSuccessCellOutPoint);
 	await indexerReady(indexer);
 
-	console.log("Lab completed successfully!");
+	console.log("Test completed successfully!");
 }
 main();

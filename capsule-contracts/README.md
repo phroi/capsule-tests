@@ -1,8 +1,6 @@
 # Nervos Developer Training Course Script Examples
 
-This repo contains the script examples for the Nervos Developer Training Course.
-
-**These scripts are for example purposes and should not be used in production!**
+This folder contains some of the script examples directly taken from the Nervos Developer Training Course.
 
 ## Available Scripts
 
@@ -12,32 +10,6 @@ This repo contains the script examples for the Nervos Developer Training Course.
 
 ## Usage
 
-Build all contracts (debug):
+1. Choose a capsule version in `capsule.toml`under `capsule version`.
 
-``` sh
-capsule build
-```
-
-Run all tests:
-
-``` sh
-capsule test
-```
-
-Build all contracts (release):
-
-``` sh
-capsule build --release
-```
-
-Build a specific contract (debug):
-
-``` sh
-capsule build --name counter
-```
-
-Build a specific contract (release):
-
-``` sh
-capsule build --name counter --release
-```
+2. Build all contracts in release mode: `capsule build --release`.
